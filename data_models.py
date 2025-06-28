@@ -10,7 +10,7 @@ class Author(db.Model):
     id = Column(INTEGER, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     birth_date = Column(String, nullable=False)
-    date_of_death = Column(String, nullable=False)
+    date_of_death = Column(String, nullable=True)
 
 
     def __repr__(self):
