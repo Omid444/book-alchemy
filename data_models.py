@@ -11,7 +11,7 @@ class Author(db.Model):
     name = Column(String, nullable=False)
     birth_date = Column(String, nullable=False)
     date_of_death = Column(String, nullable=True)
-
+    books = relationship('Book', back_populates='author')
 
     def __repr__(self):
         return f"id: {Author.id}, {Author.name} {Author.birth_date}  {Author.date_of_death}"
@@ -24,6 +24,7 @@ class Book(db.Model):
     title = Column(String, nullable=False)
     publication_year = Column(String, nullable=False)
     author_id = Column(INTEGER, ForeignKey("author.id") )
+    author = relationship('Author', back_populates='books')
 
 
     def __repr__(self):

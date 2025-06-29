@@ -1,7 +1,7 @@
 from flask import Flask, request ,render_template
 from data_models import db, Author, Book
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy import select
 from datetime import datetime
 import os
 
@@ -142,7 +142,7 @@ def handle_add_book():
 
 @app.route('/',methods=['GET'])
 def handle_home_page():
-    books = S
+    books = Book.query.all()
     return render_template('home.html', books=books)
 
 
