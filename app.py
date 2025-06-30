@@ -1,8 +1,5 @@
-from flask import Flask, request ,render_template
+from flask import Flask, request ,render_template, redirect, url_for
 from data_models import db, Author, Book
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload
 from datetime import datetime
 import os
 
@@ -144,10 +141,14 @@ def handle_add_book():
 
 @app.route('/',methods=['GET'])
 def handle_home_page():
+    message = ''
     sort = request.args.get('sort')
     search = request.args.get('search')
     if search:
         books = Book.query.filter(Book.title.ilike(f"%{search.lower()}%"))
+        print(books)
+        if search not in books:
+            message = f'No book found with such title: {search}'
     elif sort == 'title':
         books = Book.query.order_by(Book.title).all()
     elif sort == 'author':
@@ -155,8 +156,19 @@ def handle_home_page():
     else:
         books = Book.query.all()
 
-    return render_template('home.html', books=books)
+    return render_template('home.html', books=books, message=message)
 
+
+@app.route('/book/<int:book_id>/delete', methods=['POST'])
+def handle_delete_book(book_id):
+    book = Book.query.get(book_id)
+    message = f'{book} deleted successfully from DB'
+    #author_id = Book.author_id if Book.query.filter(Book.id == book_id) else ''
+    #author = Author.query.filter(Author.id == book)
+    if book:
+        db.session.delete(book)
+        db.session.commit()
+    return redirect(url_for('handle_home_page'))
 
 
 if __name__ == "__main__":

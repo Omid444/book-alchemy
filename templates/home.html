@@ -26,7 +26,10 @@
       <h2>{{book.author.name}}</h2>
       <h3>{{ book.title }} Author: {{ book.author.name}}  Published in {{ book.publication_year }}</h3>
     </div>
+    <form action="/book/{{book.id}}/delete" method="post">
+      <button type="submit">Delete</button>
+    </form>
     {% endfor %}
-
+    <h4>{{message}}</h4>
   </body>
 </html>
