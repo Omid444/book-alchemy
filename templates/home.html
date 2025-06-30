@@ -7,11 +7,24 @@
     <link rel="stylesheet" href="static/style.css">
   </head>
   <body>
-
+    <form action="/" method="get">
+      <label>Search books:</label>
+      <input type="text" name="search" placeholder="Enter keyword" value="{{search}}">
+      <button type="submit">Search</button>
+    </form>
+      <form action="/" method="get">
+      <label>Sort by:</label>
+      <select name="sort">
+        <option value="">Default</option>
+        <option value="title">Title</option>
+        <option value="author">Author</option>
+      </select>
+      <button type="submit">Sort</button>
+    </form>
     {% for book in books %}
     <div>
-      <h2>{{book.author}}</h2>
-      <h3>{{ book.title }}  {{ book.author.name}}  {{ book.publication_year }}</h3>
+      <h2>{{book.author.name}}</h2>
+      <h3>{{ book.title }} Author: {{ book.author.name}}  Published in {{ book.publication_year }}</h3>
     </div>
     {% endfor %}
 

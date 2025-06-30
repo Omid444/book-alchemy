@@ -2,6 +2,7 @@ from flask import Flask, request ,render_template
 from data_models import db, Author, Book
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from datetime import datetime
 import os
 
@@ -59,7 +60,7 @@ def validate_params_author(data):
 def validate_params_book(data):
 
     message_error = "Parameter should not be left empty"
-    required_keys = {'isbn', 'title', 'publication_year'}
+    required_keys = {'isbn', 'title', 'publication_year', 'author_id'}
     received_keys = set(request.values.keys())
     print(received_keys)
     if received_keys > required_keys :
@@ -123,8 +124,9 @@ def handle_add_book():
             isbn = request.values.get('isbn')
             title = request.values.get('title')
             publication_year = request.values.get('publication_year')
+            author_id = request.values.get('author_id')
             print(isbn, title, publication_year)
-            book = Book(isbn=isbn, title=title, publication_year=publication_year)
+            book = Book(isbn=isbn, title=title, publication_year=publication_year, author_id=author_id)
             db.session.add(book)
             db.session.commit()
             return render_template('add_book.html', message=f'Book {title} successfully added to DB')
@@ -142,8 +144,19 @@ def handle_add_book():
 
 @app.route('/',methods=['GET'])
 def handle_home_page():
-    books = Book.query.all()
+    sort = request.args.get('sort')
+    search = request.args.get('search')
+    if search:
+        books = Book.query.filter(Book.title.ilike(f"%{search.lower()}%"))
+    elif sort == 'title':
+        books = Book.query.order_by(Book.title).all()
+    elif sort == 'author':
+        books = Book.query.join(Author).order_by(Author.name).all()
+    else:
+        books = Book.query.all()
+
     return render_template('home.html', books=books)
+
 
 
 if __name__ == "__main__":

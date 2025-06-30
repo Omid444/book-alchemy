@@ -23,8 +23,8 @@ class Book(db.Model):
     isbn = Column(String, nullable=False)
     title = Column(String, nullable=False)
     publication_year = Column(String, nullable=False)
-    author_id = Column(INTEGER, ForeignKey("author.id") )
-    author = relationship('Author', back_populates='books')
+    author_id = Column(INTEGER, ForeignKey("author.id") , nullable=False)
+    author = relationship('Author', back_populates='books', lazy='joined')
 
 
     def __repr__(self):
