@@ -7,17 +7,23 @@
     <link rel="stylesheet" href="static/style.css">
   </head>
   <body>
-
   <form action="/add_book" method="POST">
   <!-- Add the form here -->
     <input type="text" id="isbn" name="isbn" placeholder="Enter isbn">
-  <input type="text" id="title" name="title" placeholder="Enter title">
-  <input type="text" id="publication_year" name="publication_year" placeholder="Enter publication_year">
-  <input type="text" id="author_id" name="author_id" placeholder="Enter author id">
+    <input type="text" id="title" name="title" placeholder="Enter title">
+    <input type="text" id="publication_year" name="publication_year" placeholder="Enter publication_year">
+    <label for="author_id">Choose Author:</label>
+    <select id="author_id" name="author_id">
 
-  <button type="submit" value="Add Book">Add this Book</button>
+      {% for author in authors %}
+
+        <option value="{{author.id}}" name="author_id">{{author.name}}</option>
+
+      {% endfor %}
+
+    </select>
+    <button type="submit" value="Add Book">Add this Book</button>
   </form>
   <h3>{{message}}</h3>
-
   </body>
 </html>

@@ -14,7 +14,7 @@ class Author(db.Model):
     books = relationship('Book', back_populates='author')
 
     def __repr__(self):
-        return f"id: {Author.id}, {Author.name} {Author.birth_date}  {Author.date_of_death}"
+        return f"id: {self.id}, {self.name} {self.birth_date}  {self.date_of_death}"
 
 
 class Book(db.Model):
@@ -28,4 +28,4 @@ class Book(db.Model):
 
 
     def __repr__(self):
-        return f"id: {Book.id}, {Book.isbn} {Book.title} {Book.publication_year} {Book.author_id}"
+        return f"id: {self.id}, {self.isbn} {self.title} {self.publication_year} {self.author_id}"

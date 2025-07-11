@@ -95,7 +95,7 @@ def handle_add_author():
             birth_date = request.values.get('birth_date')
             date_of_death = None if request.values.get('date_of_death') == '' or request.values.get('date_of_death') == 'live' else request.values.get('date_of_death')
             print(name, birth_date, date_of_death)
-            author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
+            author = Author(name=name.lower(), birth_date=birth_date, date_of_death=date_of_death)
             db.session.add(author)
             db.session.commit()
             return render_template('add_author.html', message = f'Author {name} successfully added to DB')
@@ -113,6 +113,8 @@ def handle_add_author():
 
 @app.route('/add_book',methods=['GET','POST'])
 def handle_add_book():
+    authors = Author.query.all()
+    print(authors)
     if request.method == 'POST':
         print(request.values)
         data_validation, message_error = validate_params_book(request.values)
@@ -123,20 +125,21 @@ def handle_add_book():
             publication_year = request.values.get('publication_year')
             author_id = request.values.get('author_id')
             print(isbn, title, publication_year)
-            book = Book(isbn=isbn, title=title, publication_year=publication_year, author_id=author_id)
+            book = Book(isbn=isbn.lower(), title=title.lower(), publication_year=publication_year, author_id=author_id.lower())
             db.session.add(book)
             db.session.commit()
-            return render_template('add_book.html', message=f'Book {title} successfully added to DB')
+            return render_template('add_book.html', authors=authors, message=f'Book {title} successfully added to DB')
 
         else:
-            return render_template('add_book.html', message=message_error)
+            return render_template('add_book.html',authors=authors, message=message_error)
 
     # if request is GET but there are extra params there
     if request.args:
+        authors = Author.query.all()
         message_error = "Extra parameter are not allowed in GET request. please correct URL address"
-        return render_template('add_book.html', message=message_error)
+        return render_template('add_book.html',authors=authors, message=message_error)
 
-    return render_template('add_book.html')
+    return render_template('add_book.html',authors=authors)
 
 
 @app.route('/',methods=['GET'])
@@ -146,8 +149,11 @@ def handle_home_page():
     search = request.args.get('search')
     if search:
         books = Book.query.filter(Book.title.ilike(f"%{search.lower()}%"))
-        print(books)
-        if search not in books:
+        book_titles = [book.title.lower() for book in books]
+        print(book_titles)
+        is_title = any([search.lower() in book_title for book_title in book_titles])
+        print(is_title)
+        if not is_title :
             message = f'No book found with such title: {search}'
     elif sort == 'title':
         books = Book.query.order_by(Book.title).all()

@@ -24,7 +24,7 @@
     {% for book in books %}
     <div>
       <h2>{{book.author.name}}</h2>
-      <h3>{{ book.title }} Author: {{ book.author.name}}  Published in {{ book.publication_year }}</h3>
+      <h3>{{ book.title.title() }} Author: {{ book.author.name.title()}}  Published in {{ book.publication_year }}</h3>
     </div>
     <form action="/book/{{book.id}}/delete" method="post">
       <button type="submit">Delete</button>
