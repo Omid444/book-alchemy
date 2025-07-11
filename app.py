@@ -164,14 +164,18 @@ def handle_home_page():
 
 @app.route('/book/<int:book_id>/delete', methods=['POST'])
 def handle_delete_book(book_id):
-    book = Book.query.get(book_id)
+    book = db.session.get(Book, book_id)
     message = f'{book.title} deleted successfully from DB'
-    #author_id = Book.author_id if Book.query.filter(Book.id == book_id) else ''
-    #author = Author.query.filter(Author.id == book)
+    author = db.session.get(Author, book.author_id)
+
     if book:
         db.session.delete(book)
         db.session.commit()
+        authors_books = Author.query.get(book.author_id).books
         flash(message, 'success')
+        if not authors_books:
+            db.session.delete(author)
+            db.session.commit()
     else:
         flash(f"{book.title} does not found")
     return redirect(url_for('handle_home_page'))
