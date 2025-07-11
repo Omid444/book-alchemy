@@ -32,56 +32,58 @@ def validate_params_author(data):
         return False, f"Missing required parameter(s): {', '.join(missing)}"
 
     elif received_keys == required_keys:
+        for key in ['name', 'birth_date']:
+            if not data.get(key) or data.get(key).strip() == '':
+                return False, f"Field '{key}' must not be empty."
         date_format = "%Y-%m-%d"
 
         try:
             birth_validation = bool(datetime.strptime(data.get('birth_date'), date_format))
         except ValueError:
             return False, "Invalid birth_date format. Please use 'YYYY-MM-DD' format"
-
-        try:
-            date_of_death = data.get('date_of_death')
-            if date_of_death in ('', 'live'):
-                death_validation = True
-            else:
-                death_validation = bool(datetime.strptime(date_of_death, date_format))
-        except ValueError:
-            return False, "Invalid date_of_death format. Please use 'YYYY-MM-DD' format"
-
-        if birth_validation and death_validation:
+        date_of_death = data.get('date_of_death')
+        if date_of_death.lower() == 'live':
             return True, None
+        elif date_of_death.strip() == '':
+            return True, None
+        else:
+            try:
+                datetime.strptime(date_of_death, date_format)
+            except ValueError:
+                return False, "Invalid date_of_death format. Please use 'YYYY-MM-DD'."
 
-        return False, message_error
-    return False, "Unknown validation error"
+        return True, None
+
+    return False, "Unknown validation error."
 
 
 def validate_params_book(data):
-
-    message_error = "Parameter should not be left empty"
     required_keys = {'isbn', 'title', 'publication_year', 'author_id'}
     received_keys = set(request.values.keys())
-    print(received_keys)
-    if received_keys > required_keys :
+
+    if received_keys > required_keys:
         extra = received_keys - required_keys
         return False, f"Unexpected parameter(s): {', '.join(extra)}"
 
     elif received_keys < required_keys:
         missing = required_keys - received_keys
-        return False, f"Missing required parameter(s): {','.join(missing)}"
+        return False, f"Missing required parameter(s): {', '.join(missing)}"
 
     elif received_keys == required_keys:
+        for key in required_keys:
+            value = data.get(key)
+            if not value or value.strip() == '':
+                return False, f"Field '{key}' must not be empty."
+
         year_format = "%Y"
         try:
-            publication_validation = bool(datetime.strptime(data.get('publication_year'), year_format))
+            datetime.strptime(data.get('publication_year'), year_format)
         except ValueError:
-            message_error = ("Invalid publication_year format or empty block , "
-                             "please write valid format e.g.'2004' and fill all required field")
-            return False, message_error
-        if all(request.values.values()) and publication_validation:
-            return True, None
+            return False, "Invalid publication_year format. Use 'YYYY' (e.g., '2004')."
 
-        return False, message_error
-    return False, "Unknown validation error"
+        return True, None
+
+    return False, "Unknown validation error."
 
 
 
