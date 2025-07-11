@@ -1,4 +1,4 @@
-from flask import Flask, request ,render_template, redirect, url_for
+from flask import Flask, request ,render_template, redirect, url_for, flash
 from data_models import db, Author, Book
 from datetime import datetime
 import os
@@ -6,6 +6,7 @@ import os
 #os.makedirs("data", exist_ok=True)
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key' #it is used for flash
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, "data", "library.sqlite")
 
@@ -149,11 +150,7 @@ def handle_home_page():
     search = request.args.get('search')
     if search:
         books = Book.query.filter(Book.title.ilike(f"%{search.lower()}%"))
-        book_titles = [book.title.lower() for book in books]
-        print(book_titles)
-        is_title = any([search.lower() in book_title for book_title in book_titles])
-        print(is_title)
-        if not is_title :
+        if not books.count() :
             message = f'No book found with such title: {search}'
     elif sort == 'title':
         books = Book.query.order_by(Book.title).all()
@@ -168,14 +165,17 @@ def handle_home_page():
 @app.route('/book/<int:book_id>/delete', methods=['POST'])
 def handle_delete_book(book_id):
     book = Book.query.get(book_id)
-    message = f'{book} deleted successfully from DB'
+    message = f'{book.title} deleted successfully from DB'
     #author_id = Book.author_id if Book.query.filter(Book.id == book_id) else ''
     #author = Author.query.filter(Author.id == book)
     if book:
         db.session.delete(book)
         db.session.commit()
+        flash(message, 'success')
+    else:
+        flash(f"{book.title} does not found")
     return redirect(url_for('handle_home_page'))
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5002)
